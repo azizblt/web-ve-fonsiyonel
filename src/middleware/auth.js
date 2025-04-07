@@ -10,18 +10,6 @@ const authMiddleware = async (req, res, next) => {
 
         const decodedToken = await admin.auth().verifyIdToken(token);
         req.user = decodedToken;
-
-        // Log user activity
-        await Log.create({
-            userId: decodedToken.uid,
-            action: 'LOGIN',
-            details: {
-                email: decodedToken.email
-            },
-            ip: req.ip,
-            userAgent: req.headers['user-agent']
-        });
-
         next();
     } catch (error) {
         console.error('Auth error:', error);
@@ -34,15 +22,30 @@ const isOwner = async (req, res, next) => {
         await Log.create({
             userId: req.user.uid,
             action: 'UNAUTHORIZED_ACCESS',
-            details: {
-                attemptedPath: req.path,
-                method: req.method
-            },
-            ip: req.ip
+            details: { path: req.path }
         });
         return res.status(403).json({ error: 'Bu işlem için yetkiniz yok' });
     }
     next();
 };
 
-module.exports = { authMiddleware, isOwner }; 
+const checkRole = (roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                error: 'Bu işlem için yetkiniz yok'
+            });
+        }
+        next();
+    };
+};
+
+module.exports = { 
+    authMiddleware, 
+    isOwner,
+    checkRole,
+    ROLES: {
+        OWNER: 'owner',
+        EMPLOYEE: 'employee'
+    }
+}; 

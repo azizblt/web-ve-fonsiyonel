@@ -1,9 +1,7 @@
 const { Pool } = require('pg');
 const mongoose = require('mongoose');
-const admin = require('firebase-admin');
-const serviceAccount = require('./firebase-credentials.json');
 
-// PostgreSQL Connection
+// PostgreSQL connection
 const postgresPool = new Pool({
     user: process.env.POSTGRES_USER,
     host: process.env.POSTGRES_HOST,
@@ -12,7 +10,7 @@ const postgresPool = new Pool({
     port: process.env.POSTGRES_PORT,
 });
 
-// MongoDB Connection
+// MongoDB connection
 const connectMongoDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
@@ -23,13 +21,7 @@ const connectMongoDB = async () => {
     }
 };
 
-// Firebase Admin Initialization
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
-
 module.exports = {
     postgresPool,
-    connectMongoDB,
-    firebaseAdmin: admin
+    connectMongoDB
 }; 

@@ -50,7 +50,6 @@ router.post('/verify-token', async (req, res) => {
             message: 'Token doğrulama başarılı'
         });
     } catch (error) {
-        console.error('Token verification error:', error);
         res.status(401).json({ error: 'Geçersiz token' });
     }
 });
